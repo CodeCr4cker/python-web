@@ -4,86 +4,375 @@
     <meta charset="UTF-8">
     <title>Python Countdown with Brython</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             text-align: center;
-            margin-top: 50px;
-            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
             color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
-
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+            width: 90%;
+            animation: slideIn 1s ease-out;
+        }
+        
         h1 {
-            animation: fadeIn 2s ease-in-out;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
-
-        #start-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #ff6f61;
+        
+        #countdown {
+            font-size: 5em;
+            font-weight: bold;
+            margin: 30px 0;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+            animation: pulse 1s infinite, glow 2s ease-in-out infinite alternate;
+            transition: all 0.3s ease;
+        }
+        
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
         }
-
-        #start-btn:hover {
-            background-color: #ff3b2e;
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
         }
-
-        #countdown {
-            font-size: 48px;
-            margin: 20px;
-            animation: pulse 1s infinite;
+        
+        button:active {
+            transform: translateY(0);
         }
-
+        
+        .reset-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        }
+        
+        .reset-btn:hover {
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.6);
+        }
+        
+        .input-group {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        input[type="number"] {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px 15px;
+            color: white;
+            font-size: 16px;
+            width: 100px;
+            text-align: center;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+        
+        input[type="number"]::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .status {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+        
+        .finished {
+            animation: celebration 1s ease-in-out;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ffd700;
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: float 6s linear infinite;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+            100% {
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.6);
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes celebration {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1) rotate(5deg); }
+            50% { transform: scale(1.2) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            #countdown {
+                font-size: 4em;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
-<body onload="brython()">
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <h1>🚀 Python Countdown Timer</h1>
+        
+        <div class="input-group">
+            <label for="timeInput">Set Time:</label>
+            <input type="number" id="timeInput" min="1" max="3600" value="10" placeholder="10">
+            <span>seconds</span>
+        </div>
+        
+        <div id="countdown">10</div>
+        
+        <div class="controls">
+            <button id="startBtn">▶️ Start</button>
+            <button id="pauseBtn">⏸️ Pause</button>
+            <button id="resetBtn" class="reset-btn">🔄 Reset</button>
+        </div>
+        
+        <div class="status" id="status">Ready to start!</div>
+    </div>
 
-    <h1>Digital Countdown Timer with Python in Browser (Brython)</h1>
-
-    <p>Click the button to start a countdown:</p>
-
-    <button id="start-btn">Start Countdown</button>
-
-    <h2 id="countdown">10</h2>
-
-    <!-- Brython script -->
-    <script src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
-
-    <!-- Python Script -->
-    <script type="text/python" id="python">
-        from browser import document, timer
-
-        countdown_value = 10
-
-        def update_countdown():
-            global countdown_value
-            if countdown_value >= 0:
-                document['countdown'].text = str(countdown_value)
-                countdown_value -= 1
-                timer.set_timeout(update_countdown, 1000)
-            else:
-                document['countdown'].text = "Countdown Finished!"
-
-        def start_countdown(event):
-            global countdown_value
-            countdown_value = 10
-            update_countdown()
-
-        document['start-btn'].bind('click', start_countdown)
+    <!-- Brython core and standard library from working CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.5/brython.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.5/brython_stdlib.js"></script>
+    
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particles.appendChild(particle);
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            createParticles();
+            brython();
+        });
     </script>
+    
+    <!-- Python Script -->
+    <script type="text/python">
+from browser import document, timer
+import time
 
+class CountdownTimer:
+    def __init__(self):
+        self.countdown_value = 10
+        self.original_value = 10
+        self.is_running = False
+        self.is_paused = False
+        self.timer_id = None
+        self.setup_events()
+        
+    def setup_events(self):
+        document["startBtn"].bind("click", self.start_countdown)
+        document["pauseBtn"].bind("click", self.pause_countdown)
+        document["resetBtn"].bind("click", self.reset_countdown)
+        document["timeInput"].bind("change", self.update_time)
+        
+    def update_time(self, event):
+        try:
+            new_value = int(document["timeInput"].value)
+            if new_value > 0:
+                self.countdown_value = new_value
+                self.original_value = new_value
+                document["countdown"].text = str(new_value)
+                self.update_status("Time updated!")
+        except ValueError:
+            self.update_status("Please enter a valid number")
+            
+    def start_countdown(self, event):
+        if not self.is_running:
+            self.is_running = True
+            self.is_paused = False
+            self.update_status("Countdown started!")
+            self.run_countdown()
+            
+    def pause_countdown(self, event):
+        if self.is_running:
+            self.is_running = False
+            self.is_paused = True
+            if self.timer_id:
+                timer.clear_timeout(self.timer_id)
+            self.update_status("Countdown paused")
+        elif self.is_paused:
+            self.is_running = True
+            self.is_paused = False
+            self.update_status("Countdown resumed!")
+            self.run_countdown()
+            
+    def reset_countdown(self, event):
+        self.is_running = False
+        self.is_paused = False
+        if self.timer_id:
+            timer.clear_timeout(self.timer_id)
+        self.countdown_value = self.original_value
+        document["countdown"].text = str(self.countdown_value)
+        document["countdown"].class_name = ""
+        self.update_status("Countdown reset!")
+        
+    def run_countdown(self):
+        if self.is_running and self.countdown_value >= 0:
+            document["countdown"].text = str(self.countdown_value)
+            
+            if self.countdown_value == 0:
+                self.countdown_finished()
+                return
+                
+            self.countdown_value -= 1
+            self.timer_id = timer.set_timeout(self.run_countdown, 1000)
+            
+    def countdown_finished(self):
+        self.is_running = False
+        document["countdown"].text = "🎉 FINISHED! 🎉"
+        document["countdown"].class_name = "finished"
+        self.update_status("Countdown completed!")
+        self.create_celebration()
+        
+    def update_status(self, message):
+        document["status"].text = message
+        
+    def create_celebration(self):
+        # Simple celebration effect
+        timer.set_timeout(lambda: self.update_status("🎊 Well done! 🎊"), 500)
+
+# Initialize the countdown timer
+countdown_timer = CountdownTimer()
+    </script>
 </body>
 </html>
