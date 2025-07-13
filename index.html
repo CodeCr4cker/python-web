@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Python Countdown with Brython</title>
+</head>
+<body onload="brython()">
+
+    <h1>Digital Countdown Timer with Python in Browser (Brython)</h1>
+
+    <p>Click the button to start a countdown:</p>
+
+    <button id="start-btn">Start Countdown</button>
+
+    <h2 id="countdown">10</h2>
+
+    <!-- Brython script -->
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
+
+    <!-- Python Script -->
+    <script type="text/python">
+        from browser import document, timer
+
+        countdown_value = 10
+
+        def update_countdown():
+            global countdown_value
+            if countdown_value >= 0:
+                document['countdown'].text = str(countdown_value)
+                countdown_value -= 1
+                timer.set_timeout(update_countdown, 1000)
+            else:
+                document['countdown'].text = "Countdown Finished!"
+
+        def start_countdown(event):
+            global countdown_value
+            countdown_value = 10
+            update_countdown()
+
+        document['start-btn'].bind('click', start_countdown)
+    </script>
+
+</body>
+</html>
